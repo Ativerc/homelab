@@ -1,9 +1,9 @@
 #!/bin/ash
 
-source /tmp/network_vars
+$(source /tmp/network_vars)  ||  NET1="MainNet"  &&  NET2="AltNet" 
 
 TARGET=8.8.8.8
-MQTT_SERVER= # MQTT Server IP or Hostname
+MQTT_SERVER=192.168.8.123
 
 TIMESTAMP=$(date)
 
@@ -24,12 +24,12 @@ test_isp() {
 	TOPIC=$3
 	WEIGHT=$4
 
-	MESSAGE="{\"timestamp\":\"$TIMESTAMP\", \"isp\":\"$ISP\", \"weight\": \"$WEIGHT\", \"value\": \"1\", \"message\": \"$ISP-OK\"}"
+	MESSAGE="{\"timestamp\":\"$TIMESTAMP\", \"isp\":\"$ISP\", \"weight\": \"$WEIGHT\", \"value\": 1, \"message\": \"$ISP-OK\"}"
 
         ping -I $INTERFACE -W1 -c1 $TARGET
 
         if [ $? -eq 1 ]; then
-                MESSAGE="{\"timestamp\":\"$TIMESTAMP\",\"isp\":\"$ISP\", \"weight\": \"$WEIGHT\",  \"value\": \"0\", \"message\": \"$ISP-FAIL\"}"
+                MESSAGE="{\"timestamp\":\"$TIMESTAMP\",\"isp\":\"$ISP\", \"weight\": \"$WEIGHT\",  \"value\": 0, \"message\": \"$ISP-FAIL\"}"
                 mosquitto_pub -h $MQTT_SERVER -t $TOPIC -m "$MESSAGE" -r
         else
 		echo $MQTT_SERVER $TOPIC $MESSAGE
